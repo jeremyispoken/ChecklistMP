@@ -1,0 +1,21 @@
+{
+  "name": "checklistmp",
+  "version": "1.0.0",
+  "description": "Checklist de revisión de mantenimiento con almacenamiento en Firebase",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "checklist",
+    "maintenance",
+    "firebase"
+  ],
+  "author": "",
+  "license": "MIT",
+  "type": "commonjs",
+  "dependencies": {
+    "express": "^4.18.2",
+    "firebase-admin": "^12.0.0"
+  }
+}
