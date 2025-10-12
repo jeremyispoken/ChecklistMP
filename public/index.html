@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Checklist de revisión de mantenimiento</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="page-header">
+      <div class="wrapper">
+        <h1 id="app-title">Checklist de revisión de mantenimiento</h1>
+        <p id="app-description">
+          Cargando el formato digital...
+        </p>
+      </div>
+    </header>
+
+    <main class="wrapper">
+      <section class="card">
+        <form id="checklist-form" novalidate>
+          <section>
+            <h2>Información general</h2>
+            <div id="metadata-fields" class="grid"></div>
+          </section>
+
+          <section>
+            <h2>Inspección detallada</h2>
+            <div id="section-fields" class="stack"></div>
+          </section>
+
+          <section>
+            <h2>Cierre</h2>
+            <div id="closing-fields" class="grid"></div>
+          </section>
+
+          <div class="form-actions">
+            <button type="submit" class="primary">Guardar checklist</button>
+            <button type="reset" class="secondary">Limpiar</button>
+          </div>
+        </form>
+      </section>
+
+      <aside class="card" id="status-card">
+        <h2>Estado del envío</h2>
+        <p id="status-message">Completa los campos y guarda el checklist.</p>
+        <div id="preview" hidden>
+          <h3>Resumen rápido</h3>
+          <pre id="preview-json"></pre>
+        </div>
+      </aside>
+    </main>
+
+    <footer class="page-footer">
+      <div class="wrapper">
+        <small>
+          Los registros se almacenan en la colección <strong>Checklists</strong> de Firestore.
+        </small>
+      </div>
+    </footer>
+
+    <script id="embedded-template" type="application/json">{"title": "Checklist de Revisión de Mantenimiento", "description": "Formato digital para registrar inspecciones preventivas y correctivas. Todos los parámetros replican el formato original enviado por el área de mantenimiento.", "metadataFields": [{"id": "fecha", "label": "Fecha", "type": "date", "required": true}, {"id": "hora", "label": "Hora", "type": "time", "required": true}, {"id": "tecnico", "label": "Técnico responsable", "type": "text", "required": true}, {"id": "supervisor", "label": "Supervisor", "type": "text", "required": false}, {"id": "equipo", "label": "Equipo / Unidad", "type": "text", "required": true}, {"id": "placa", "label": "Placa / Código interno", "type": "text", "required": true}, {"id": "ubicacion", "label": "Ubicación", "type": "text", "required": false}, {"id": "kilometraje", "label": "Kilometraje / Horómetro", "type": "number", "required": false}, {"id": "tipoServicio", "label": "Tipo de servicio", "type": "select", "options": ["Preventivo", "Correctivo", "Inspección especial"], "required": true}], "sections": [{"id": "sistema-electrico", "title": "1. Sistema eléctrico", "items": [{"id": "bateria", "label": "Estado de batería", "type": "select", "options": ["OK", "Debe corregirse", "No aplica"], "required": true}, {"id": "luces", "label": "Funcionamiento de luces (altas, bajas, direccionales)", "type": "select", "options": ["OK", "Debe corregirse", "No aplica"], "required": true}, {"id": "tablero", "label": "Indicadores de tablero", "type": "select", "options": ["OK", "Debe corregirse", "No aplica"], "required": true}, {"id": "arneses", "label": "Arneses y cables sin daños", "type": "select", "options": ["OK", "Debe corregirse", "No aplica"], "required": true}], "notesField": {"id": "observaciones-electrico", "label": "Observaciones sistema eléctrico"}}, {"id": "sistema-mecanico", "title": "2. Sistema mecánico", "items": [{"id": "aceite", "label": "Nivel y condición de aceite", "type": "select", "options": ["OK", "Debe corregirse", "No aplica"], "required": true}, {"id": "fugas", "label": "Fugas hidráulicas o de refrigerante", "type": "select", "options": ["OK", "Debe corregirse", "No aplica"], "required": true}, {"id": "correas", "label": "Tensión y estado de correas", "type": "select", "options": ["OK", "Debe corregirse", "No aplica"], "required": true}, {"id": "frenos", "label": "Sistema de frenos", "type": "select", "options": ["OK", "Debe corregirse", "No aplica"], "required": true}], "notesField": {"id": "observaciones-mecanico", "label": "Observaciones sistema mecánico"}}, {"id": "seguridad", "title": "3. Elementos de seguridad", "items": [{"id": "extintor", "label": "Extintor operativo", "type": "select", "options": ["OK", "Debe corregirse", "No aplica"], "required": true}, {"id": "botiquin", "label": "Botiquín completo", "type": "select", "options": ["OK", "Debe corregirse", "No aplica"], "required": true}, {"id": "senalizacion", "label": "Elementos de señalización", "type": "select", "options": ["OK", "Debe corregirse", "No aplica"], "required": true}, {"id": "epp", "label": "EPP del operador", "type": "select", "options": ["OK", "Debe corregirse", "No aplica"], "required": true}], "notesField": {"id": "observaciones-seguridad", "label": "Observaciones elementos de seguridad"}}, {"id": "pruebas-operativas", "title": "4. Pruebas operativas", "items": [{"id": "arranque", "label": "Prueba de arranque", "type": "select", "options": ["OK", "Debe corregirse", "No aplica"], "required": true}, {"id": "frenado", "label": "Prueba de frenado", "type": "select", "options": ["OK", "Debe corregirse", "No aplica"], "required": true}, {"id": "direccion", "label": "Prueba de dirección", "type": "select", "options": ["OK", "Debe corregirse", "No aplica"], "required": true}, {"id": "ruidos", "label": "Ruidos o vibraciones inusuales", "type": "select", "options": ["OK", "Debe corregirse", "No aplica"], "required": true}], "notesField": {"id": "observaciones-pruebas", "label": "Observaciones pruebas operativas"}}], "closingFields": [{"id": "observaciones-generales", "label": "Observaciones generales", "type": "textarea", "required": false}, {"id": "acciones", "label": "Acciones recomendadas", "type": "textarea", "required": false}, {"id": "firma-tecnico", "label": "Firma técnico", "type": "text", "required": false}, {"id": "firma-supervisor", "label": "Firma supervisor", "type": "text", "required": false}]}</script>
+    <script src="app.js" type="module"></script>
+  </body>
+</html>
