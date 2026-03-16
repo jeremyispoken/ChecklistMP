@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Gestión de Transporte de Personal</title>
+    <title>Libro Operacional - Transporte de Personal</title>
     <link rel="stylesheet" href="styles.css" />
     <script defer src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script defer src="app.js"></script>
@@ -11,54 +11,73 @@
   <body>
     <a class="skip-link" href="#contenido">Saltar al contenido principal</a>
     <header class="encabezado">
-      <h1>Plataforma de Operación de Transporte de Personal</h1>
-      <p>
-        Diseño basado en la planilla operativa de Verschae (turnos A/B, administrativos y servicios especiales).
-      </p>
+      <div>
+        <h1>Libro de Operación de Transporte de Personal</h1>
+        <p>Cada módulo opera como una hoja/pestaña independiente con atribuciones por rol.</p>
+      </div>
+      <label class="rol-box">Rol activo
+        <select id="selector-rol" aria-label="Rol activo">
+          <option>Programador</option>
+          <option>Coordinador</option>
+          <option>Reportes</option>
+          <option>RRHH</option>
+          <option>Mantenimiento</option>
+          <option>Administrador</option>
+        </select>
+      </label>
     </header>
 
-    <main id="contenido" class="contenedor">
-      <section class="modulo" aria-labelledby="prog-title">
-        <h2 id="prog-title">1) Programación de servicios e historial</h2>
-        <p>Permite registrar por rol de turno y cargar datos por Excel.</p>
+    <nav class="tabs" aria-label="Hojas del libro">
+      <button class="tab active" data-tab="programacion">Hoja 1 · Programación</button>
+      <button class="tab" data-tab="ejecucion">Hoja 2 · Ejecución</button>
+      <button class="tab" data-tab="reportes">Hoja 3 · Reportes</button>
+      <button class="tab" data-tab="conductores">Hoja 4 · Conductores</button>
+      <button class="tab" data-tab="mantenimiento">Hoja 5 · Mantenimiento</button>
+    </nav>
 
-        <form id="form-programacion" class="grid-form">
+    <main id="contenido" class="contenedor">
+      <section class="hoja active" id="tab-programacion" aria-labelledby="titulo-programacion">
+        <h2 id="titulo-programacion">Planilla de Programación (todos los clientes)</h2>
+        <p class="nota">Basada en formato original: Candelaria, Ojos del Salado y Servicios Especiales.</p>
+
+        <form id="form-programacion" class="grid-form" data-module="programacion">
           <label>Fecha <input type="date" name="fecha" required /></label>
-          <label>Faena
-            <select name="faena" required>
-              <option value="">Seleccionar...</option>
+          <label>Cliente
+            <select name="cliente" required>
               <option>Minera Candelaria</option>
               <option>Ojos del Salado</option>
               <option>Servicios Especiales</option>
             </select>
           </label>
-          <label>Turno
-            <select name="turno" required>
-              <option value="">Seleccionar...</option>
-              <option>Turno B - Entrada 07:30</option>
-              <option>Administrativo - Entrada 07:20</option>
-              <option>Administrativo - Salida 18:45</option>
-              <option>Turno A - Entrada 19:30</option>
+          <label>Bloque
+            <select name="bloque" required>
+              <option>Turno B - Entrada</option>
+              <option>Administrativo - Entrada</option>
+              <option>Administrativo - Salida</option>
+              <option>Turno A - Entrada</option>
+              <option>Día - Disposición Faena</option>
+              <option>Noche - Disposición Faena</option>
+              <option>Especial/Adicional</option>
             </select>
           </label>
-          <label>Servicio <input type="text" name="servicio" placeholder="R-4, ADM-5, VAN A-1" required /></label>
+          <label>Servicio <input name="servicio" placeholder="R-4, ADM-6, T/BUS 1, VAN A-3" required /></label>
           <label>Hora <input type="time" name="hora" required /></label>
-          <label>Vehículo <input type="text" name="vehiculo" placeholder="1152 / 4039" required /></label>
-          <label>Conductor <input type="text" name="conductor" required /></label>
-          <label>Pasajeros estimados <input type="number" min="1" name="pasajeros" /></label>
-          <button type="submit">Agregar a programación</button>
+          <label>Vehículo <input name="vehiculo" placeholder="1152 / 4039 / E-5002" required /></label>
+          <label>Conductor <input name="conductor" required /></label>
+          <label>Horario pasajeros <input name="horarioPasajeros" placeholder="06:30 / 18:25" /></label>
+          <button type="submit">Agregar línea</button>
         </form>
 
-        <div class="acciones-carga">
-          <label for="excel-programacion">Carga Excel programación (hoja con columnas: fecha, faena, turno, servicio, hora, vehiculo, conductor, pasajeros)</label>
+        <div class="acciones-carga" data-module="programacion">
+          <label for="excel-programacion">Carga Excel programación (columnas: fecha, cliente, bloque, servicio, hora, vehiculo, conductor, horarioPasajeros)</label>
           <input id="excel-programacion" type="file" accept=".xlsx,.xls,.csv" />
         </div>
 
         <div class="tabla-wrap">
           <table>
-            <caption>Programación activa</caption>
+            <caption>Matriz general de programación</caption>
             <thead>
-              <tr><th>Fecha</th><th>Faena</th><th>Turno</th><th>Servicio</th><th>Hora</th><th>Vehículo</th><th>Conductor</th><th>Pasajeros</th><th>Acciones</th></tr>
+              <tr><th>Fecha</th><th>Cliente</th><th>Bloque</th><th>Servicio</th><th>Hora</th><th>Vehículo</th><th>Conductor</th><th>Horario pasajeros</th><th>Acciones</th></tr>
             </thead>
             <tbody id="tabla-programacion"></tbody>
           </table>
@@ -68,87 +87,70 @@
         <ul id="historial" class="historial" aria-live="polite"></ul>
       </section>
 
-      <section class="modulo" aria-labelledby="ejec-title">
-        <h2 id="ejec-title">2) Ejecución de la programación del día (Coordinador)</h2>
-        <p>Control operativo en tiempo real.</p>
+      <section class="hoja" id="tab-ejecucion" aria-labelledby="titulo-ejecucion">
+        <h2 id="titulo-ejecucion">Hoja de Ejecución del día (Coordinación)</h2>
         <div class="tabla-wrap">
           <table>
-            <caption>Control de ejecución</caption>
-            <thead>
-              <tr><th>Servicio</th><th>Conductor</th><th>Estado</th><th>Observación</th></tr>
-            </thead>
+            <caption>Control operacional</caption>
+            <thead><tr><th>Cliente</th><th>Servicio</th><th>Conductor</th><th>Estado</th><th>Observación</th></tr></thead>
             <tbody id="tabla-ejecucion"></tbody>
           </table>
         </div>
       </section>
 
-      <section class="modulo" aria-labelledby="reportes-title">
-        <h2 id="reportes-title">3) Reportes operacionales</h2>
+      <section class="hoja" id="tab-reportes" aria-labelledby="titulo-reportes">
+        <h2 id="titulo-reportes">Hoja de Reportes</h2>
         <div class="reportes-resumen" id="resumen-reportes"></div>
         <div class="tabla-wrap">
           <table>
-            <caption>Asignación por vehículo y conductor</caption>
-            <thead>
-              <tr><th>Vehículo</th><th>Conductor</th><th>Servicios asignados</th></tr>
-            </thead>
+            <caption>Vehículos, conductores y servicios asignados</caption>
+            <thead><tr><th>Vehículo</th><th>Conductor</th><th>Servicios</th></tr></thead>
             <tbody id="tabla-reportes"></tbody>
           </table>
         </div>
       </section>
 
-      <section class="modulo" aria-labelledby="drivers-title">
-        <h2 id="drivers-title">4) Carga masiva y gestión de conductores</h2>
-        <form id="form-conductor" class="grid-form">
+      <section class="hoja" id="tab-conductores" aria-labelledby="titulo-conductores">
+        <h2 id="titulo-conductores">Hoja de Conductores</h2>
+        <form id="form-conductor" class="grid-form" data-module="conductores">
           <label>Código <input name="codigo" required /></label>
           <label>Nombre <input name="nombre" required /></label>
           <label>Teléfono <input name="telefono" /></label>
           <label>Estado
-            <select name="estado">
-              <option>Activo</option>
-              <option>Licencia</option>
-              <option>Inactivo</option>
-            </select>
+            <select name="estado"><option>Activo</option><option>Licencia</option><option>Inactivo</option></select>
           </label>
           <button type="submit">Guardar conductor</button>
         </form>
-        <div class="acciones-carga">
-          <label for="excel-conductores">Carga Excel conductores (columnas: codigo, nombre, telefono, estado)</label>
+        <div class="acciones-carga" data-module="conductores">
+          <label for="excel-conductores">Carga Excel conductores (codigo, nombre, telefono, estado)</label>
           <input id="excel-conductores" type="file" accept=".xlsx,.xls,.csv" />
         </div>
-
         <div class="tabla-wrap">
           <table>
-            <caption>Conductores registrados</caption>
+            <caption>Listado de conductores</caption>
             <thead><tr><th>Código</th><th>Nombre</th><th>Teléfono</th><th>Estado</th><th>Acciones</th></tr></thead>
             <tbody id="tabla-conductores"></tbody>
           </table>
         </div>
       </section>
 
-      <section class="modulo" aria-labelledby="mant-title">
-        <h2 id="mant-title">5) Mantenimiento preventivo semanal/mensual</h2>
-        <form id="form-mantenimiento" class="grid-form">
+      <section class="hoja" id="tab-mantenimiento" aria-labelledby="titulo-mantenimiento">
+        <h2 id="titulo-mantenimiento">Hoja de Mantenimiento preventivo</h2>
+        <form id="form-mantenimiento" class="grid-form" data-module="mantenimiento">
           <label>Vehículo <input name="vehiculo" required /></label>
-          <label>Periodicidad
-            <select name="periodicidad" required>
-              <option>Semanal</option>
-              <option>Mensual</option>
-            </select>
-          </label>
+          <label>Periodicidad <select name="periodicidad"><option>Semanal</option><option>Mensual</option></select></label>
           <label>Próxima fecha <input type="date" name="proximaFecha" required /></label>
           <label>Responsable <input name="responsable" required /></label>
           <button type="submit">Programar mantenimiento</button>
         </form>
-
         <div class="tabla-wrap">
           <table>
-            <caption>Plan de mantenimiento</caption>
+            <caption>Plan preventivo</caption>
             <thead><tr><th>Vehículo</th><th>Periodicidad</th><th>Próxima fecha</th><th>Responsable</th><th>Cumplimiento</th></tr></thead>
             <tbody id="tabla-mantenimiento"></tbody>
           </table>
         </div>
-
-        <h3>Notificaciones de calendario (próximos 7 días)</h3>
+        <h3>Notificaciones de calendario</h3>
         <ul id="notificaciones" aria-live="polite"></ul>
       </section>
     </main>

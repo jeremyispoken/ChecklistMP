@@ -1,43 +1,40 @@
-# Plataforma de transporte de personal
+# Libro operacional de transporte de personal
 
-Aplicación web para coordinar la operación diaria de transporte de personal,
-basada en la estructura de planillas Excel de turnos (A/B/Administrativo),
-servicios especiales y control de mantenimiento preventivo.
+Aplicación web accesible para operación diaria de transporte, organizada como
+**libro por hojas/pestañas** con permisos por rol.
 
-## Módulos incluidos
+## Hojas del libro
 
-1. **Programación de servicios e historial**
-   - Registro manual por turno, faena, servicio, hora, vehículo y conductor.
-   - Historial de cambios para trazabilidad operativa.
-   - Carga masiva desde Excel (`.xlsx`, `.xls`, `.csv`) para programación.
+1. **Hoja 1 · Programación** (rol Programador)
+   - Planilla base similar al formato original (Candelaria, Ojos del Salado y Especiales).
+   - Registro manual y carga masiva por Excel.
+   - Historial de cambios.
 
-2. **Ejecución diaria (coordinador)**
-   - Estado por servicio: Programado, En ruta, Completado, Incidencia.
-   - Observaciones operacionales por servicio.
+2. **Hoja 2 · Ejecución** (rol Coordinador)
+   - Seguimiento operacional por servicio.
+   - Cambio de estado y observaciones.
 
-3. **Reportes**
-   - Resumen de servicios, vehículos activos, completados e incidencias.
-   - Tabla de asignación vehículo/conductor y cantidad de servicios.
+3. **Hoja 3 · Reportes** (rol Reportes)
+   - Indicadores operacionales y asignación por vehículo/conductor.
 
-4. **Gestión de conductores**
-   - Carga masiva por Excel con código de conductor.
-   - Alta y modificación manual de conductores existentes.
+4. **Hoja 4 · Conductores** (rol RRHH)
+   - Carga masiva y edición manual con código de conductor.
 
-5. **Mantenimiento preventivo**
-   - Programación semanal/mensual por vehículo.
-   - Seguimiento de cumplimiento.
-   - Notificaciones de calendario (próximos 7 días).
+5. **Hoja 5 · Mantenimiento** (rol Mantenimiento)
+   - Programación semanal/mensual.
+   - Cumplimiento y alertas de próximos 7 días.
 
-## Ejecución local
+## Roles y atribuciones
+
+- Cada rol solo edita su hoja.
+- Las demás hojas quedan en modo lectura.
+- `Administrador` tiene acceso total.
+
+## Ejecutar
 
 ```bash
 npm install
 npm start
 ```
 
-Servidor disponible en `http://localhost:3000`.
-
-## Persistencia
-
-- La aplicación guarda datos en `localStorage` del navegador (`transportePersonalDataV1`).
-- La carga Excel se procesa en el navegador usando SheetJS.
+Abrir `http://localhost:3000`.
