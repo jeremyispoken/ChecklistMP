@@ -1,86 +1,40 @@
-# Checklist de revisión de mantenimiento
+# Libro operacional de transporte de personal
 
-Aplicación web ligera para capturar checklists de mantenimiento de manera digital.
-El formulario replica los campos del formato original y envía las respuestas a una
-colección de Firestore llamada **Checklists** utilizando Firebase Admin.
+Aplicación web accesible para operación diaria de transporte, organizada como
+**libro por hojas/pestañas** con permisos por rol.
 
-## Características
+## Hojas del libro
 
-- Formulario dinámico generado desde `data/checklistTemplate.json` para que puedas
-  ajustar los parámetros del checklist sin tocar el código de la interfaz.
-- Envío de la información a Firestore mediante el SDK de `firebase-admin`.
-- Almacenamiento local de respaldo en `data/localSubmissions.json` cuando Firebase
-  no está configurado (útil para desarrollo).
-- Interfaz moderna responsive que funciona en escritorio y móviles.
+1. **Hoja 1 · Programación** (rol Programador)
+   - Planilla base similar al formato original (Candelaria, Ojos del Salado y Especiales).
+   - Registro manual y carga masiva por Excel.
+   - Historial de cambios.
 
-## Requisitos previos
+2. **Hoja 2 · Ejecución** (rol Coordinador)
+   - Seguimiento operacional por servicio.
+   - Cambio de estado y observaciones.
 
-1. Node.js 18 o superior.
-2. Archivo de credenciales de servicio de Firebase (JSON) con permisos sobre
-   Firestore. Puedes generarlo desde la consola de Firebase.
+3. **Hoja 3 · Reportes** (rol Reportes)
+   - Indicadores operacionales y asignación por vehículo/conductor.
 
-## Configuración
+4. **Hoja 4 · Conductores** (rol RRHH)
+   - Carga masiva y edición manual con código de conductor.
 
-1. Instala las dependencias:
+5. **Hoja 5 · Mantenimiento** (rol Mantenimiento)
+   - Programación semanal/mensual.
+   - Cumplimiento y alertas de próximos 7 días.
 
-   ```bash
-   npm install
-   ```
+## Roles y atribuciones
 
-2. Copia tu archivo de credenciales a la raíz del proyecto y nómbralo
-   `serviceAccountKey.json`. También puedes colocar el archivo en cualquier
-   ubicación y exponer la ruta mediante la variable de entorno `SERVICE_ACCOUNT_PATH`.
+- Cada rol solo edita su hoja.
+- Las demás hojas quedan en modo lectura.
+- `Administrador` tiene acceso total.
 
-3. (Opcional) Ajusta los campos del checklist editando
-   `data/checklistTemplate.json`.
-
-## Ejecución
+## Ejecutar
 
 ```bash
+npm install
 npm start
 ```
 
-El servidor quedará disponible en `http://localhost:3000`. Abre esa URL en tu
-navegador para cargar el formulario.
-
-## Despliegue
-
-- Configura una variable de entorno `SERVICE_ACCOUNT_PATH` o
-  `GOOGLE_APPLICATION_CREDENTIALS` en tu plataforma de despliegue apuntando al
-  JSON de credenciales.
-- Asegúrate de que la base de datos de Firestore tenga la colección `Checklists`
-  o permisos para crearla automáticamente.
-
-## Estructura del payload
-
-Cada envío genera un documento con la siguiente forma:
-
-```json
-{
-  "metadata": { "fecha": "2024-04-01", "tecnico": "Nombre" },
-  "sections": [
-    {
-      "id": "sistema-electrico",
-      "items": [
-        { "id": "bateria", "value": "OK" }
-      ],
-      "notes": "Observaciones"
-    }
-  ],
-  "closing": {
-    "observaciones-generales": "..."
-  },
-  "createdAt": "2024-04-01T12:00:00.000Z"
-}
-```
-
-Si Firestore está operativo, `createdAt` usará `serverTimestamp()`; en modo
-local se guardará como fecha ISO.
-
-## Notas adicionales
-
-- Los envíos almacenados localmente se acumulan en `data/localSubmissions.json`.
-  El archivo se crea automáticamente cuando es necesario.
-- Para adaptar el formulario a otros formatos, modifica la plantilla y el
-  frontend se actualizará en el siguiente recarga.
-
+Abrir `http://localhost:3000`.

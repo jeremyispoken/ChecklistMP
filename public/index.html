@@ -3,63 +3,156 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Checklist de revisión de mantenimiento</title>
+    <title>Libro Operacional - Transporte de Personal</title>
     <link rel="stylesheet" href="styles.css" />
+    <script defer src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script defer src="app.js"></script>
   </head>
   <body>
-    <header class="page-header">
-      <div class="wrapper">
-        <h1 id="app-title">Checklist de revisión de mantenimiento</h1>
-        <p id="app-description">
-          Cargando el formato digital...
-        </p>
+    <a class="skip-link" href="#contenido">Saltar al contenido principal</a>
+    <header class="encabezado">
+      <div>
+        <h1>Libro de Operación de Transporte de Personal</h1>
+        <p>Cada módulo opera como una hoja/pestaña independiente con atribuciones por rol.</p>
       </div>
+      <label class="rol-box">Rol activo
+        <select id="selector-rol" aria-label="Rol activo">
+          <option>Programador</option>
+          <option>Coordinador</option>
+          <option>Reportes</option>
+          <option>RRHH</option>
+          <option>Mantenimiento</option>
+          <option>Administrador</option>
+        </select>
+      </label>
     </header>
 
-    <main class="wrapper">
-      <section class="card">
-        <form id="checklist-form" novalidate>
-          <section>
-            <h2>Información general</h2>
-            <div id="metadata-fields" class="grid"></div>
-          </section>
+    <nav class="tabs" aria-label="Hojas del libro">
+      <button class="tab active" data-tab="programacion">Hoja 1 · Programación</button>
+      <button class="tab" data-tab="ejecucion">Hoja 2 · Ejecución</button>
+      <button class="tab" data-tab="reportes">Hoja 3 · Reportes</button>
+      <button class="tab" data-tab="conductores">Hoja 4 · Conductores</button>
+      <button class="tab" data-tab="mantenimiento">Hoja 5 · Mantenimiento</button>
+    </nav>
 
-          <section>
-            <h2>Inspección detallada</h2>
-            <div id="section-fields" class="stack"></div>
-          </section>
+    <main id="contenido" class="contenedor">
+      <section class="hoja active" id="tab-programacion" aria-labelledby="titulo-programacion">
+        <h2 id="titulo-programacion">Planilla de Programación (todos los clientes)</h2>
+        <p class="nota">Basada en formato original: Candelaria, Ojos del Salado y Servicios Especiales.</p>
 
-          <section>
-            <h2>Cierre</h2>
-            <div id="closing-fields" class="grid"></div>
-          </section>
-
-          <div class="form-actions">
-            <button type="submit" class="primary">Guardar checklist</button>
-            <button type="reset" class="secondary">Limpiar</button>
-          </div>
+        <form id="form-programacion" class="grid-form" data-module="programacion">
+          <label>Fecha <input type="date" name="fecha" required /></label>
+          <label>Cliente
+            <select name="cliente" required>
+              <option>Minera Candelaria</option>
+              <option>Ojos del Salado</option>
+              <option>Servicios Especiales</option>
+            </select>
+          </label>
+          <label>Bloque
+            <select name="bloque" required>
+              <option>Turno B - Entrada</option>
+              <option>Administrativo - Entrada</option>
+              <option>Administrativo - Salida</option>
+              <option>Turno A - Entrada</option>
+              <option>Día - Disposición Faena</option>
+              <option>Noche - Disposición Faena</option>
+              <option>Especial/Adicional</option>
+            </select>
+          </label>
+          <label>Servicio <input name="servicio" placeholder="R-4, ADM-6, T/BUS 1, VAN A-3" required /></label>
+          <label>Hora <input type="time" name="hora" required /></label>
+          <label>Vehículo <input name="vehiculo" placeholder="1152 / 4039 / E-5002" required /></label>
+          <label>Conductor <input name="conductor" required /></label>
+          <label>Horario pasajeros <input name="horarioPasajeros" placeholder="06:30 / 18:25" /></label>
+          <button type="submit">Agregar línea</button>
         </form>
+
+        <div class="acciones-carga" data-module="programacion">
+          <label for="excel-programacion">Carga Excel programación (columnas: fecha, cliente, bloque, servicio, hora, vehiculo, conductor, horarioPasajeros)</label>
+          <input id="excel-programacion" type="file" accept=".xlsx,.xls,.csv" />
+        </div>
+
+        <div class="tabla-wrap">
+          <table>
+            <caption>Matriz general de programación</caption>
+            <thead>
+              <tr><th>Fecha</th><th>Cliente</th><th>Bloque</th><th>Servicio</th><th>Hora</th><th>Vehículo</th><th>Conductor</th><th>Horario pasajeros</th><th>Acciones</th></tr>
+            </thead>
+            <tbody id="tabla-programacion"></tbody>
+          </table>
+        </div>
+
+        <h3>Historial de cambios</h3>
+        <ul id="historial" class="historial" aria-live="polite"></ul>
       </section>
 
-      <aside class="card" id="status-card">
-        <h2>Estado del envío</h2>
-        <p id="status-message">Completa los campos y guarda el checklist.</p>
-        <div id="preview" hidden>
-          <h3>Resumen rápido</h3>
-          <pre id="preview-json"></pre>
+      <section class="hoja" id="tab-ejecucion" aria-labelledby="titulo-ejecucion">
+        <h2 id="titulo-ejecucion">Hoja de Ejecución del día (Coordinación)</h2>
+        <div class="tabla-wrap">
+          <table>
+            <caption>Control operacional</caption>
+            <thead><tr><th>Cliente</th><th>Servicio</th><th>Conductor</th><th>Estado</th><th>Observación</th></tr></thead>
+            <tbody id="tabla-ejecucion"></tbody>
+          </table>
         </div>
-      </aside>
+      </section>
+
+      <section class="hoja" id="tab-reportes" aria-labelledby="titulo-reportes">
+        <h2 id="titulo-reportes">Hoja de Reportes</h2>
+        <div class="reportes-resumen" id="resumen-reportes"></div>
+        <div class="tabla-wrap">
+          <table>
+            <caption>Vehículos, conductores y servicios asignados</caption>
+            <thead><tr><th>Vehículo</th><th>Conductor</th><th>Servicios</th></tr></thead>
+            <tbody id="tabla-reportes"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="hoja" id="tab-conductores" aria-labelledby="titulo-conductores">
+        <h2 id="titulo-conductores">Hoja de Conductores</h2>
+        <form id="form-conductor" class="grid-form" data-module="conductores">
+          <label>Código <input name="codigo" required /></label>
+          <label>Nombre <input name="nombre" required /></label>
+          <label>Teléfono <input name="telefono" /></label>
+          <label>Estado
+            <select name="estado"><option>Activo</option><option>Licencia</option><option>Inactivo</option></select>
+          </label>
+          <button type="submit">Guardar conductor</button>
+        </form>
+        <div class="acciones-carga" data-module="conductores">
+          <label for="excel-conductores">Carga Excel conductores (codigo, nombre, telefono, estado)</label>
+          <input id="excel-conductores" type="file" accept=".xlsx,.xls,.csv" />
+        </div>
+        <div class="tabla-wrap">
+          <table>
+            <caption>Listado de conductores</caption>
+            <thead><tr><th>Código</th><th>Nombre</th><th>Teléfono</th><th>Estado</th><th>Acciones</th></tr></thead>
+            <tbody id="tabla-conductores"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="hoja" id="tab-mantenimiento" aria-labelledby="titulo-mantenimiento">
+        <h2 id="titulo-mantenimiento">Hoja de Mantenimiento preventivo</h2>
+        <form id="form-mantenimiento" class="grid-form" data-module="mantenimiento">
+          <label>Vehículo <input name="vehiculo" required /></label>
+          <label>Periodicidad <select name="periodicidad"><option>Semanal</option><option>Mensual</option></select></label>
+          <label>Próxima fecha <input type="date" name="proximaFecha" required /></label>
+          <label>Responsable <input name="responsable" required /></label>
+          <button type="submit">Programar mantenimiento</button>
+        </form>
+        <div class="tabla-wrap">
+          <table>
+            <caption>Plan preventivo</caption>
+            <thead><tr><th>Vehículo</th><th>Periodicidad</th><th>Próxima fecha</th><th>Responsable</th><th>Cumplimiento</th></tr></thead>
+            <tbody id="tabla-mantenimiento"></tbody>
+          </table>
+        </div>
+        <h3>Notificaciones de calendario</h3>
+        <ul id="notificaciones" aria-live="polite"></ul>
+      </section>
     </main>
-
-    <footer class="page-footer">
-      <div class="wrapper">
-        <small>
-          Los registros se almacenan en la colección <strong>Checklists</strong> de Firestore.
-        </small>
-      </div>
-    </footer>
-
-    <script id="embedded-template" type="application/json">{"title": "Checklist de Revisión de Mantenimiento", "description": "Formato digital para registrar inspecciones preventivas y correctivas. Todos los parámetros replican el formato original enviado por el área de mantenimiento.", "metadataFields": [{"id": "fecha", "label": "Fecha", "type": "date", "required": true}, {"id": "hora", "label": "Hora", "type": "time", "required": true}, {"id": "tecnico", "label": "Técnico responsable", "type": "text", "required": true}, {"id": "supervisor", "label": "Supervisor", "type": "text", "required": false}, {"id": "equipo", "label": "Equipo / Unidad", "type": "text", "required": true}, {"id": "placa", "label": "Placa / Código interno", "type": "text", "required": true}, {"id": "ubicacion", "label": "Ubicación", "type": "text", "required": false}, {"id": "kilometraje", "label": "Kilometraje / Horómetro", "type": "number", "required": false}, {"id": "tipoServicio", "label": "Tipo de servicio", "type": "select", "options": ["Preventivo", "Correctivo", "Inspección especial"], "required": true}], "sections": [{"id": "sistema-electrico", "title": "1. Sistema eléctrico", "items": [{"id": "bateria", "label": "Estado de batería", "type": "select", "options": ["OK", "Debe corregirse", "No aplica"], "required": true}, {"id": "luces", "label": "Funcionamiento de luces (altas, bajas, direccionales)", "type": "select", "options": ["OK", "Debe corregirse", "No aplica"], "required": true}, {"id": "tablero", "label": "Indicadores de tablero", "type": "select", "options": ["OK", "Debe corregirse", "No aplica"], "required": true}, {"id": "arneses", "label": "Arneses y cables sin daños", "type": "select", "options": ["OK", "Debe corregirse", "No aplica"], "required": true}], "notesField": {"id": "observaciones-electrico", "label": "Observaciones sistema eléctrico"}}, {"id": "sistema-mecanico", "title": "2. Sistema mecánico", "items": [{"id": "aceite", "label": "Nivel y condición de aceite", "type": "select", "options": ["OK", "Debe corregirse", "No aplica"], "required": true}, {"id": "fugas", "label": "Fugas hidráulicas o de refrigerante", "type": "select", "options": ["OK", "Debe corregirse", "No aplica"], "required": true}, {"id": "correas", "label": "Tensión y estado de correas", "type": "select", "options": ["OK", "Debe corregirse", "No aplica"], "required": true}, {"id": "frenos", "label": "Sistema de frenos", "type": "select", "options": ["OK", "Debe corregirse", "No aplica"], "required": true}], "notesField": {"id": "observaciones-mecanico", "label": "Observaciones sistema mecánico"}}, {"id": "seguridad", "title": "3. Elementos de seguridad", "items": [{"id": "extintor", "label": "Extintor operativo", "type": "select", "options": ["OK", "Debe corregirse", "No aplica"], "required": true}, {"id": "botiquin", "label": "Botiquín completo", "type": "select", "options": ["OK", "Debe corregirse", "No aplica"], "required": true}, {"id": "senalizacion", "label": "Elementos de señalización", "type": "select", "options": ["OK", "Debe corregirse", "No aplica"], "required": true}, {"id": "epp", "label": "EPP del operador", "type": "select", "options": ["OK", "Debe corregirse", "No aplica"], "required": true}], "notesField": {"id": "observaciones-seguridad", "label": "Observaciones elementos de seguridad"}}, {"id": "pruebas-operativas", "title": "4. Pruebas operativas", "items": [{"id": "arranque", "label": "Prueba de arranque", "type": "select", "options": ["OK", "Debe corregirse", "No aplica"], "required": true}, {"id": "frenado", "label": "Prueba de frenado", "type": "select", "options": ["OK", "Debe corregirse", "No aplica"], "required": true}, {"id": "direccion", "label": "Prueba de dirección", "type": "select", "options": ["OK", "Debe corregirse", "No aplica"], "required": true}, {"id": "ruidos", "label": "Ruidos o vibraciones inusuales", "type": "select", "options": ["OK", "Debe corregirse", "No aplica"], "required": true}], "notesField": {"id": "observaciones-pruebas", "label": "Observaciones pruebas operativas"}}], "closingFields": [{"id": "observaciones-generales", "label": "Observaciones generales", "type": "textarea", "required": false}, {"id": "acciones", "label": "Acciones recomendadas", "type": "textarea", "required": false}, {"id": "firma-tecnico", "label": "Firma técnico", "type": "text", "required": false}, {"id": "firma-supervisor", "label": "Firma supervisor", "type": "text", "required": false}]}</script>
-    <script src="app.js" type="module"></script>
   </body>
 </html>
